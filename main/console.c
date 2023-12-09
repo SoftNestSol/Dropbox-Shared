@@ -147,12 +147,14 @@ void shell()
 
     else if(strcmp(command, "help") == 0)
     {
-        printf("cd <path> - change directory\n");
+        
         printf("cp <source> <destination> - copy file\n");
+        printf("cd <path> - change directory\n");
+        printf("rm <path> - remove file\n");
         printf("mv <source> <destination> - move file\n");
         printf("mkdir <path> - create directory\n");
         printf("rmdir <path> - remove directory\n");
-        printf("rm <path> - remove file\n");
+        
         printf("cat <path> - print file contents\n");
         printf("ls <path> - list directory contents\n");
         printf("pwd - print working directory\n");
