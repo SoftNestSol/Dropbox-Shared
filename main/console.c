@@ -50,8 +50,10 @@ void shell()
             if (path == NULL) {
                 printf("Usage: cd <path>\n");
             } else {
-                if (chdir(path) != 0) {
-                    perror("cd failed");
+               
+                int ret = chdir(path);
+                if (ret != 0) {
+                    perror("chdir failed");
                 }
             }
         } 
