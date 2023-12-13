@@ -19,12 +19,12 @@ int main(char argc, char **argv)
         return -1;
     }
 
-    if (S_ISREG(path_stat.st_mode)) { // It's a regular file
+    if (S_ISREG(path_stat.st_mode)) { 
         if (unlink(path) != 0) {
             perror("Failed to remove file");
             return -1;
         }
-    } else if (S_ISDIR(path_stat.st_mode)) { // It's a directory
+    } else if (S_ISDIR(path_stat.st_mode)) { 
         if (rmdir(path) != 0) {
             perror("Failed to remove directory");
             return -1;

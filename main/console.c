@@ -6,6 +6,7 @@
 
 void shell()
 {
+    printf("\n");
     printf("Welcome to the shell!\n");
     printf("Type 'exit' to exit the shell.\n");
     printf("Type 'help' to see the list of commands.\n");
@@ -123,19 +124,44 @@ void shell()
 
     else if(strcmp(command, "cat") == 0)
     {
-        char* command_args[3];
-        command_args[0] = "cat";
-        scanf("%s", command_args[1]);
-        command_args[2] = NULL;
+
+        char *path = strtok(NULL, " ");
+        char* command_args[] = {"cat", path, NULL};
+
+        pid_t pid = fork();
+
+        if (pid < 0) {
+            perror("fork failed");
+            exit(1);
+        } else if (pid == 0) {
+            execve("../executables/cat", command_args, NULL);
+            perror("execve failed"); 
+            exit(1); 
+        } else {
+            wait(NULL);
+        }
 
     }
 
     else if(strcmp(command, "ls") == 0)
     {
-        char* command_args[3];
+        char* command_args[2];
         command_args[0] = "ls";
-        scanf("%s", command_args[1]);
-        command_args[2] = NULL;
+        command_args[1] = NULL;
+
+        pid_t pid = fork();
+
+        if (pid < 0) {
+            perror("fork failed");
+            exit(1);
+        } else if (pid == 0) {
+            execve("../executables/ls", command_args, NULL);
+            perror("execve failed"); 
+            exit(1); 
+        } else {
+            wait(NULL);
+        }
+
 
     }
 
