@@ -15,6 +15,16 @@ void shell()
     int status = 1;
     char* command = malloc(2000);
 
+    char cwd[1024];
+    
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        printf("%s >", cwd);
+    } else {
+        perror("getcwd() error");
+    }
+
+
+
     while (1) {
         char cwd[1024];
         if (getcwd(cwd, sizeof(cwd)) != NULL) {
@@ -53,6 +63,7 @@ void shell()
             } else {
                
                 int ret = chdir(path);
+
                 if (ret != 0) {
                     perror("chdir failed");
                 }
@@ -140,7 +151,6 @@ void shell()
         } else {
             wait(NULL);
         }
-
     }
 
     else if(strcmp(command, "ls") == 0)
@@ -155,7 +165,8 @@ void shell()
             perror("fork failed");
             exit(1);
         } else if (pid == 0) {
-            execve("../executables/ls", command_args, NULL);
+       
+            execve("/Users/andreiiordache/Desktop/Dropbox/Dropbox-Shared/executables/ls" , command_args, NULL);
             perror("execve failed"); 
             exit(1); 
         } else {

@@ -12,6 +12,15 @@
 int main(int argc, char** argv)
 {
 
+    char cwd[1024];
+
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        printf("%s >", cwd);
+    } else {
+        perror("getcwd() error");
+        return 1;
+    }
+
     DIR *d = opendir(".");
 
     if (d == NULL) {
@@ -23,6 +32,7 @@ int main(int argc, char** argv)
 
     while ((dir = readdir(d)) != NULL) {
         printf("%s\n", dir->d_name);
+        printf(" %s din ls", cwd);
     }
 
     closedir(d);
