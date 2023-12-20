@@ -6,6 +6,7 @@
 #include <errno.h>
 int main(char argc, char **argv)
 {
+    printf("Usage: %s <dir name>\n", argv[0]);
     if (argc != 2)
     {
         printf("Usage: %s <dir name>\n", argv[0]);

@@ -94,6 +94,7 @@ void shell()
 
             if (type == NULL || source == NULL || destination == NULL) {
                 printf("Usage: cp <type> <source> <destination>\n");
+                printf("Type: local(your machine), upload(to dropbox), download(from dropbox)")
             } 
             else {
                 if (strcmp(type, "local") == 0) {
@@ -172,6 +173,9 @@ void shell()
         scanf("%s", command_args[2]);
         command_args[3] = NULL;
 
+
+
+
     }
 
     else if(strcmp(command, "mkdir") == 0)
@@ -183,14 +187,7 @@ void shell()
 
     }
 
-    else if(strcmp(command, "rmdir") == 0)
-    {
-        char* command_args[3];
-        command_args[0] = "rmdir";
-        scanf("%s", command_args[1]);
-        command_args[2] = NULL;
-   
-    }
+  
 
     else if(strcmp(command, "rm") == 0)
     {
@@ -259,10 +256,9 @@ void shell()
         
         printf("cp <source> <destination> - copy file\n");
         printf("cd <path> - change directory\n");
-        printf("rm <path> - remove file\n");
+        printf("rm <path> - remove file or directory\n");
         printf("mv <source> <destination> - move file\n");
         printf("mkdir <path> - create directory\n");
-        printf("rmdir <path> - remove directory\n");
         
         printf("cat <path> - print file contents\n");
         printf("ls <path> - list directory contents\n");
