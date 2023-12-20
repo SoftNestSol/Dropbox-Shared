@@ -3,21 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
-
-
-void print_differences(const char *str1, const char *str2) {
-    int length = strlen(str1) > strlen(str2) ? strlen(str1) : strlen(str2);
-    
-    printf("Index\tstr1\tstr2\tASCII(str1-str2)\n");
-    for (int i = 0; i < length; ++i) {
-        char c1 = i < strlen(str1) ? str1[i] : '\0';
-        char c2 = i < strlen(str2) ? str2[i] : '\0';
-        
-        if (c1 != c2) {
-            printf("%d\t%c\t%c\t%d\n", i, c1, c2, c1 - c2);
-        }
-    }
-}
+#include <sys/stat.h>
 
 
 void build_executable_path(char* dest, const char* executables_dir, const char* cmd) {
@@ -101,14 +87,19 @@ void shell()
         } 
         
         else if (strcmp(command, "cp") == 0) {
+
+            char *type = strtok(NULL, " ");  
             char *source = strtok(NULL, " ");
             char *destination = strtok(NULL, " ");
-            if (source == NULL || destination == NULL) {
-                printf("Usage: cp <source> <destination>\n");
+
+            if (type == NULL || source == NULL || destination == NULL) {
+                printf("Usage: cp <type> <source> <destination>\n");
             } 
+            else {
+                if (strcmp(type, "local") == 0) {
+                    
+            char *command_args[] = {"copy", source, destination, NULL};
             
-        else {
-                char *command_args[] = {"cp", source, destination, NULL};
                 
                 pid_t pid = fork();
 
@@ -124,6 +115,51 @@ void shell()
                 } else {
                     wait(NULL);
                 }
+            }
+            else if(strcmp(type, "upload") == 0)
+            {
+
+                char* command_args[] = {"dbxcli", "put", source, destination, NULL};
+
+                pid_t pid = fork();
+
+                if (pid < 0) {
+                    perror("fork failed");
+                    exit(1);
+                } else if (pid == 0) {
+                    execvp("dbxcli", command_args);
+                    perror("execve failed"); 
+                    exit(1); 
+                } else {
+                    wait(NULL);
+                }
+            }
+
+            else if(strcmp(type, "download") == 0)
+            {
+
+                char* command_args[] = {"dbxcli", "get", source, destination, NULL};
+
+                pid_t pid = fork();
+
+                if (pid < 0) {
+                    perror("fork failed");
+                    exit(1);
+                } else if (pid == 0) {
+                    execvp("dbxcli", command_args);
+                    perror("execve failed"); 
+                    exit(1); 
+                } else {
+                    wait(NULL);
+                }
+            }
+
+            else
+            {
+                printf("Invalid type.\n");
+
+            }
+
             }
     }
 
