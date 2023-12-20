@@ -32,7 +32,6 @@ int main(int argc, char** argv)
 
     while ((dir = readdir(d)) != NULL) {
         printf("%s\n", dir->d_name);
-        printf(" %s din ls", cwd);
     }
 
     closedir(d);

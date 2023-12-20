@@ -4,6 +4,30 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+
+void print_differences(const char *str1, const char *str2) {
+    int length = strlen(str1) > strlen(str2) ? strlen(str1) : strlen(str2);
+    
+    printf("Index\tstr1\tstr2\tASCII(str1-str2)\n");
+    for (int i = 0; i < length; ++i) {
+        char c1 = i < strlen(str1) ? str1[i] : '\0';
+        char c2 = i < strlen(str2) ? str2[i] : '\0';
+        
+        if (c1 != c2) {
+            printf("%d\t%c\t%c\t%d\n", i, c1, c2, c1 - c2);
+        }
+    }
+}
+
+
+void build_executable_path(char* dest, const char* executables_dir, const char* cmd) {
+ 
+    strcpy(dest, executables_dir);
+    strcat(dest, "/");
+    strcat(dest, cmd);
+}
+
+
 void shell()
 {
     printf("\n");
@@ -12,21 +36,21 @@ void shell()
     printf("Type 'help' to see the list of commands.\n");
 
     char input[2000];
-    int status = 1;
-    char* command = malloc(2000);
 
     char cwd[1024];
-    
-    if (getcwd(cwd, sizeof(cwd)) != NULL) {
-        printf("%s >", cwd);
-    } else {
-        perror("getcwd() error");
-    }
+
+    char *path = getcwd(cwd, sizeof(cwd));
+    char executables_path[1024];
+    strncpy(executables_path, path, strlen(path) - 4);
+    strcat(executables_path, "executables");
 
 
 
     while (1) {
-        char cwd[1024];
+
+        char exec_path[1024];
+
+
         if (getcwd(cwd, sizeof(cwd)) != NULL) {
             printf("%s >", cwd);
         } else {
@@ -51,8 +75,14 @@ void shell()
             continue;
         }
 
-        if (strcmp(command, "exit") == 0) {
-            status = 0;
+        if(strcmp(command, "cwd") == 0)
+        {
+            printf("%s\n", executables_path);
+        }
+
+      else if (strcmp(command, "exit") == 0) {
+            printf("Exiting shell...\n");
+            exit(0);
         } 
         
         else if (strcmp(command, "cd") == 0) {
@@ -86,7 +116,9 @@ void shell()
                     perror("fork failed");
                     exit(1);
                 } else if (pid == 0) {
-                    execve("../executables/copy", command_args, NULL);
+                     
+                    char* execve_cp = strcat(executables_path, "/copy");
+                    execve(execve_cp, command_args, NULL);
                     perror("execve failed"); 
                     exit(1); 
                 } else {
@@ -145,7 +177,8 @@ void shell()
             perror("fork failed");
             exit(1);
         } else if (pid == 0) {
-            execve("../executables/cat", command_args, NULL);
+            char* execve_cat = strcat(executables_path, "/cat");
+            execve(execve_cat, command_args, NULL);
             perror("execve failed"); 
             exit(1); 
         } else {
@@ -165,8 +198,9 @@ void shell()
             perror("fork failed");
             exit(1);
         } else if (pid == 0) {
-       
-            execve("/Users/andreiiordache/Desktop/Dropbox/Dropbox-Shared/executables/ls" , command_args, NULL);
+            
+            char* execve_ls = strcat(executables_path, "/ls");
+            execve(execve_ls , command_args, NULL);
             perror("execve failed"); 
             exit(1); 
         } else {
@@ -213,13 +247,7 @@ void shell()
     
     }
 
-    free(command);
 
-    if(status == 0)
-    {
-        printf("Exiting shell...\n");
-        exit(0);
-    }
 
 }
 
