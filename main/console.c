@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <pthread.h>	
+
 
 void build_executable_path(char *dest, const char *executables_dir, const char *cmd)
 {
@@ -22,13 +24,30 @@ void shell()
 
     char input[2000];
 
-    char cwd[1024];
-
+      char cwd[1024];
     char *path = getcwd(cwd, sizeof(cwd));
-    char executables_path[1024];
-    strncpy(executables_path, path, strlen(path) - 4);
-    strcat(executables_path, "executables");
+    if (path == NULL) {
+        perror("getcwd() error");
+        return -1;
+    }
 
+    char executables_path[1024];
+    strncpy(executables_path, path, sizeof(executables_path));
+
+    // Find "/main" in the path
+    char *main_substr = strstr(executables_path, "/main");
+    if (main_substr != NULL) {
+        // Terminate the string at the start of "/main"
+        *main_substr = '\0';
+    }
+
+    // Append "/executables" to the path
+    strncat(executables_path, "/executables", sizeof(executables_path) - strlen(executables_path) - 1);
+
+    // Ensure the path is null-terminated
+    executables_path[sizeof(executables_path) - 1] = '\0';
+
+    printf(executables_path);
     while (1)
     {
 
@@ -66,7 +85,7 @@ void shell()
 
         if (strcmp(command, "cwd") == 0)
         {
-            printf("%s\n", executables_path);
+            printf("%s\n", path);
         }
 
         else if (strcmp(command, "exit") == 0)
@@ -105,12 +124,15 @@ void shell()
             if (type == NULL || source == NULL || destination == NULL)
             {
                 printf("Usage: cp <type> <source> <destination>\n");
-                printf("Type: local(your machine), upload(to dropbox), download(from dropbox)");
+                printf("Type: local(your machine), upload(to dropbox), download(from dropbox)\n");
+                
             }
             else
             {
                 if (strcmp(type, "local") == 0)
-                {
+                {   char *execve_cp = strcat(executables_path, "/copy");
+
+                        printf(execve_cp);
 
                     char *command_args[] = {"copy", source, destination, NULL};
 
@@ -123,8 +145,10 @@ void shell()
                     }
                     else if (pid == 0)
                     {
-
+                       
                         char *execve_cp = strcat(executables_path, "/copy");
+
+                        printf(execve_cp);
                         execve(execve_cp, command_args, NULL);
                         perror("execve failed");
                         exit(1);
@@ -232,6 +256,8 @@ void shell()
                     else if (pid == 0)
                     {
                         char *execve_rm = strcat(executables_path, "/rem");
+                        printf("%s\n",execve_rm);
+
                         execve(execve_rm, command_args,NULL);
                         perror("execve failed");
                         exit(1);
