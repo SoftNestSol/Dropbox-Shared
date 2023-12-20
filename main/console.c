@@ -217,7 +217,7 @@ void shell()
             
             if(type ==NULL || source == NULL ){
                 printf("Usage: rm <type> <source> \n");
-                printf("Type: local(your machine), dbx (dropbox)");
+                printf("Type: local(your machine), dbx (dropbox)\n");
             }
             else{
                 if(strcmp(type,"local")==0){
@@ -231,7 +231,9 @@ void shell()
                     }
                     else if (pid == 0)
                     {
+
                         char *execve_rm = strcat(executables_path, "/rem");
+                        printf("%s\n",execve_rm);
                         execve(execve_rm, command_args,NULL);
                         perror("execve failed");
                         exit(1);
