@@ -4,7 +4,8 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <errno.h>
-int main(char argc, char **argv)
+
+int main(int argc, char **argv)
 {
     printf("Usage: %s <dir name>\n", argv[0]);
     if (argc != 2)
@@ -12,7 +13,8 @@ int main(char argc, char **argv)
         printf("Usage: %s <dir name>\n", argv[0]);
         return 1;
     }
-    char * command_args =argv[1];
+
+    char * command_args = argv[2];
     int ret = mkdir(command_args,0777);
     if (ret != 0)
     {

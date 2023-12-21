@@ -25,29 +25,27 @@ void shell()
     char input[2000];
 
       char cwd[1024];
+
     char *path = getcwd(cwd, sizeof(cwd));
     if (path == NULL) {
         perror("getcwd() error");
-        return -1;
+        exit(1);
     }
 
     char executables_path[1024];
     strncpy(executables_path, path, sizeof(executables_path));
 
-    // Find "/main" in the path
     char *main_substr = strstr(executables_path, "/main");
     if (main_substr != NULL) {
-        // Terminate the string at the start of "/main"
+    
         *main_substr = '\0';
     }
 
-    // Append "/executables" to the path
     strncat(executables_path, "/executables", sizeof(executables_path) - strlen(executables_path) - 1);
 
-    // Ensure the path is null-terminated
     executables_path[sizeof(executables_path) - 1] = '\0';
 
-    printf(executables_path);
+  
     while (1)
     {
 
@@ -104,7 +102,6 @@ void shell()
             }
             else
             {
-
                 int ret = chdir(path);
 
                 if (ret != 0)
@@ -132,7 +129,7 @@ void shell()
                 if (strcmp(type, "local") == 0)
                 {   char *execve_cp = strcat(executables_path, "/copy");
 
-                        printf(execve_cp);
+
 
                     char *command_args[] = {"copy", source, destination, NULL};
 
@@ -147,8 +144,6 @@ void shell()
                     {
                        
                         char *execve_cp = strcat(executables_path, "/copy");
-
-                        printf(execve_cp);
                         execve(execve_cp, command_args, NULL);
                         perror("execve failed");
                         exit(1);
@@ -215,23 +210,204 @@ void shell()
 
         else if (strcmp(command, "mv") == 0)
         {
-            char *command_args[4];
-            command_args[0] = "mv";
-            scanf("%s", command_args[1]);
-            scanf("%s", command_args[2]);
-            command_args[3] = NULL;
+            char* type = strtok(NULL, " ");
+            char* source = strtok(NULL, " ");
+            char* destination = strtok(NULL, " ");
+
+            if(type == NULL || source == NULL)
+            {
+                printf("Usage: mv <type> <source> <destination>\n");
+                printf("Type: local(your machine), upload(to dropbox), download(from dropbox)\n");
+            }
+
+            else{
+                if(strcmp(type,"local")==0){
+
+                    char *command_args[] = {"mv", source, destination, NULL};
+                    pid_t pid = fork();
+
+                    if (pid < 0)
+                    {
+                        perror("fork failed");
+                        exit(1);
+                    }
+                    else if (pid == 0)
+                    {
+                        char *execve_cp = strcat(executables_path, "/copy");
+                        execve(execve_cp, command_args,NULL);
+                        perror("execve failed");
+                        exit(1);
+                    }
+                    else
+                    {
+                        wait(NULL);
+                        pid_t pid = fork(); 
+
+                        char* execve_rm = strcat(executables_path, "/rem");
+                        char *command_args[] = {execve_rm, source, NULL};
+                        if (pid < 0)
+                        {
+                            perror("fork failed");
+                            exit(1);
+                        }
+                        else if (pid == 0)
+                        {
+                            execve(execve_rm, command_args,NULL);
+                            perror("execve failed");
+                            exit(1);
+                        }
+                        else
+                        {
+                            wait(NULL);
+                        }
+                  
+
+                    }
+                }
+                else if(strcmp(type,"upload")==0){
+
+                    char *command_args[] = {"dbxcli", "put", source, destination, NULL};
+                    pid_t pid = fork();
+
+                    if (pid < 0)
+                    {
+                        perror("fork failed");
+                        exit(1);
+                    }
+                    else if (pid == 0)
+                    {
+                        execvp("dbxcli", command_args);
+                        perror("execve failed");
+                        exit(1);
+                    }
+                    else
+                    {
+                        wait(NULL);
+                        pid_t pid = fork(); 
+
+                        char* execve_rm = strcat(executables_path, "/rem");
+                        char *command_args[] = {execve_rm, source, NULL};
+
+                        if (pid < 0)
+                        {
+                            perror("fork failed");
+                            exit(1);
+                        }
+                        else if (pid == 0)
+                        {
+                            execve(execve_rm, command_args,NULL);
+                            perror("execve failed");
+                            exit(1);
+                        }
+                        else
+                        {
+                            wait(NULL);
+                        }
+                  
+                    }
+                }
+
+                else if(strcmp(type,"download")==0){
+
+                    char *command_args[] = {"dbxcli", "get", source, destination, NULL};
+                    pid_t pid = fork();
+
+                    if (pid < 0)
+                    {
+                        perror("fork failed");
+                        exit(1);
+                    }
+                    else if (pid == 0)
+                    {
+                        execvp("dbxcli", command_args);
+                        perror("execve failed");
+                        exit(1);
+                    }
+                    else
+                    {
+                        wait(NULL);
+                        pid_t pid = fork(); 
+
+                        char *command_args[] = {"dbxcli", "rm", source, NULL};
+                        if (pid < 0)
+                        {
+                            perror("fork failed");
+                            exit(1);
+                        }
+                        else if (pid == 0)
+                        {
+                            execvp("dbxcli", command_args);
+                            perror("execve failed");
+                            exit(1);
+                        }
+                        else
+                        {
+                            wait(NULL);
+                        }
+                  
+                    }
+                }
+            }
         }
 
         else if (strcmp(command, "mkdir") == 0)
         {
             char *type = strtok(NULL, " ");
             char *source = strtok(NULL, " ");
-            char *destination = strtok(NULL, " ");
 
-            char *command_args[3];
-            command_args[0] = "mkdir";
-            scanf("%s", command_args[1]);
-            command_args[2] = NULL;
+            if(type == NULL || source == NULL ){
+                printf("Usage: mkdir <type> <source> \n");
+                printf("Type: local(your machine), dbx (dropbox)\n");
+            }
+
+            else{
+                if(strcmp(type,"local")==0){
+                    char *command_args[] = {"mkdir", source, NULL};
+                    pid_t pid = fork();
+
+                    if (pid < 0)
+                    {
+                        perror("fork failed");
+                        exit(1);
+                    }
+                    else if (pid == 0)
+                    {
+
+                        char *execve_mkdir = strcat(executables_path, "/mkdir");
+                        printf("%s\n",execve_mkdir);
+
+                        execve(execve_mkdir, command_args,NULL);
+                        perror("execve failed");
+                        exit(1);
+                    }
+                    else
+                    {
+                        wait(NULL);
+                    }
+                }
+                else if(strcmp(type,"dbx")==0){
+
+                    char *command_args[] = {"dbxcli", "mkdir", source, NULL};
+                    pid_t pid = fork();
+
+                    if (pid < 0)
+                    {
+                        perror("fork failed");
+                        exit(1);
+                    }
+                    else if (pid == 0)
+                    {
+                        execvp("dbxcli", command_args);
+                        perror("execve failed");
+                        exit(1);
+                    }
+                    else
+                    {
+                        wait(NULL);
+                    }
+                }
+            }
+
         }
 
         else if (strcmp(command, "rm") == 0)
@@ -268,6 +444,28 @@ void shell()
                         wait(NULL);
                     }
                 }
+
+                else if(strcmp(type,"dbx")==0){
+
+                    char *command_args[] = {"dbxcli", "rm", source, NULL};
+                    pid_t pid = fork();
+
+                    if (pid < 0)
+                    {
+                        perror("fork failed");
+                        exit(1);
+                    }
+                    else if (pid == 0)
+                    {
+                        execvp("dbxcli", command_args);
+                        perror("execve failed");
+                        exit(1);
+                    }
+                    else
+                    {
+                        wait(NULL);
+                    }
+                }
                 
             }
 
@@ -275,6 +473,7 @@ void shell()
 
         else if (strcmp(command, "cat") == 0)
         {
+           
 
             char *path = strtok(NULL, " ");
             char *command_args[] = {"cat", path, NULL};
@@ -301,29 +500,66 @@ void shell()
 
         else if (strcmp(command, "ls") == 0)
         {
-            char *command_args[2];
-            command_args[0] = "ls";
-            command_args[1] = NULL;
 
-            pid_t pid = fork();
+            char* type = strtok(NULL, " ");
+            char* path = strtok(NULL, " ");
 
-            if (pid < 0)
+            if(type == NULL || strcmp(type, "dbx") == 0 && path == NULL)
             {
-                perror("fork failed");
-                exit(1);
+                printf("Usage: ls <type> <path>, <path> is required for dropbox interaction\n");
             }
-            else if (pid == 0)
-            {
 
-                char *execve_ls = strcat(executables_path, "/ls");
-                execve(execve_ls, command_args, NULL);
-                perror("execve failed");
-                exit(1);
+            else{
+                if(strcmp(type,"local")==0){
+                    char *command_args[] = {"ls", path, NULL};
+                    pid_t pid = fork();
+
+                    if (pid < 0)
+                    {
+                        perror("fork failed");
+                        exit(1);
+                    }
+                    else if (pid == 0)
+                    {
+
+                        char *execve_ls = strcat(executables_path, "/ls");
+                        printf("%s\n",execve_ls);
+
+                        execve(execve_ls, command_args,NULL);
+                        perror("execve failed");
+                        exit(1);
+                    }
+                    else
+                    {
+                        wait(NULL);
+                    }
+                }
+
+                else if(strcmp(type,"dbx")==0){
+
+                    char *command_args[] = {"dbxcli", "ls", path, NULL};
+                    pid_t pid = fork();
+
+                    if (pid < 0)
+                    {
+                        perror("fork failed");
+                        exit(1);
+                    }
+                    else if (pid == 0)
+                    {
+                        execvp("dbxcli", command_args);
+                        perror("execve failed");
+                        exit(1);
+                    }
+                    else
+                    {
+                        wait(NULL);
+                        printf("\n");
+                    }
+                }
             }
-            else
-            {
-                wait(NULL);
-            }
+
+           
         }
 
         else if (strcmp(command, "pwd") == 0)

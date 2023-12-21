@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-int main(char argc, char **argv)
+int main(int argc, char **argv)
 {
     if (argc != 2) {
         printf("Usage: %s <path>\n", argv[0]);
