@@ -121,8 +121,7 @@ void shell()
             if (type == NULL || source == NULL || destination == NULL)
             {
                 printf("Usage: cp <type> <source> <destination>\n");
-                printf("Type: local(your machine), upload(to dropbox), download(from dropbox)\n");
-                
+                printf("Type: local(your machine), dbx (your dropbox), upload(to dropbox), download(from dropbox)\n");
             }
             else
             {
@@ -200,7 +199,27 @@ void shell()
                         wait(NULL);
                     }
                 }
+                else if (strcmp(type,"dbx")==0){
+                    char *command_args[] = {"dbxcli", "cp", source, destination, NULL};
 
+                    pid_t pid = fork();
+
+                    if (pid < 0)
+                    {
+                        perror("fork failed");
+                        exit(1);
+                    }
+                    else if (pid == 0)
+                    {
+                        execvp("dbxcli", command_args);
+                        perror("execve failed");
+                        exit(1);
+                    }
+                    else
+                    {
+                        wait(NULL);
+                    }
+                }
                 else
                 {
                     printf("Invalid type.\n");
@@ -217,7 +236,7 @@ void shell()
             if(type == NULL || source == NULL)
             {
                 printf("Usage: mv <type> <source> <destination>\n");
-                printf("Type: local(your machine), upload(to dropbox), download(from dropbox)\n");
+                printf("Type: local(your machine),dbx(your dropbox) upload(to dropbox), download(from dropbox)\n");
             }
 
             else{
@@ -345,6 +364,27 @@ void shell()
                             wait(NULL);
                         }
                   
+                    }
+                }
+                else if (strcmp(type,"dbx")==0){
+                    char *command_args[] = {"dbxcli", "mv", source, destination, NULL};
+
+                    pid_t pid = fork();
+
+                    if (pid < 0)
+                    {
+                        perror("fork failed");
+                        exit(1);
+                    }
+                    else if (pid == 0)
+                    {
+                        execvp("dbxcli", command_args);
+                        perror("execve failed");
+                        exit(1);
+                    }
+                    else
+                    {
+                        wait(NULL);
                     }
                 }
             }
@@ -506,7 +546,7 @@ void shell()
 
             if(type == NULL || strcmp(type, "dbx") == 0 && path == NULL)
             {
-                printf("Usage: ls <type> <path>, <path> is required for dropbox interaction\n");
+                printf("Usage: ls <type> <path>, <path> is required for dropbox interaction root is '/'\n");
             }
 
             else{
