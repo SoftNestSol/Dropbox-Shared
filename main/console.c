@@ -33,6 +33,7 @@ void shell()
     }
 
     char executables_path[1024];
+
     strncpy(executables_path, path, sizeof(executables_path));
 
     char *main_substr = strstr(executables_path, "/main");
@@ -54,6 +55,7 @@ void shell()
         if (getcwd(cwd, sizeof(cwd)) != NULL)
         {
             printf("%s >", cwd);
+
         }
         else
         {
@@ -129,7 +131,6 @@ void shell()
                 {   char *execve_cp = strcat(executables_path, "/copy");
 
 
-
                     char *command_args[] = {"copy", source, destination, NULL};
 
                     pid_t pid = fork();
@@ -141,8 +142,9 @@ void shell()
                     }
                     else if (pid == 0)
                     {
-                       
-                        char *execve_cp = strcat(executables_path, "/copy");
+               
+                        printf("\n");
+                        printf("%s", execve_cp);
                         execve(execve_cp, command_args, NULL);
                         perror("execve failed");
                         exit(1);
@@ -262,7 +264,8 @@ void shell()
                         wait(NULL);
                         pid_t pid = fork(); 
 
-                        char* execve_rm = strcat(executables_path, "/rem");
+                        char* execve_path = strcpy(exec_path,executables_path);
+                        char* execve_rm = strcat(execve_path, "/rem");
                         char *command_args[] = {execve_rm, source, NULL};
                         if (pid < 0)
                         {
